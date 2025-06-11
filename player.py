@@ -25,7 +25,7 @@ class Player():
             pygame.image.load('images/player_back/back2.png').convert_alpha(),
             pygame.image.load('images/player_back/back3.png').convert_alpha(),
 ]
-
+        
     def move(self, maze, keys):
         if keys[pygame.K_LEFT]:
             maze.moveMap(speed_x=self.player_speed_x)

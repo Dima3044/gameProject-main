@@ -31,8 +31,8 @@ def load_level(level_num):
 def game_loop(level_num, screen):
     maze, player_obj = load_level(level_num)
     running = True
-    
     while running:
+        # Очистка экрана
         screen.fill((0, 0, 0))
         
         # Игровая логика
