@@ -1,21 +1,23 @@
 import pygame
 from random import choice
+import copy  # Для глубокого копирования
 
 pygame.init()
 
 
 class Maze():
-    def __init__(self):
-        self.keys = keys
-        self.obstacles = obstacles
-        self.backgrounds = backgrounds
-        self.doors = doors
+    def __init__(self, enemy_system):
+        self.enemy_system = enemy_system  # Принимаем систему врагов
+        self.keys = [[img.copy(), pos] for img, pos in keys]
+        self.obstacles = [[img.copy(), pos] for img, pos in obstacles]
+        self.backgrounds = [[img.copy(), pos] for img, pos in backgrounds]
+        self.doors = [[img.copy(), pos] for img, pos in doors]
         self.inventory = []
-        self.MAP = [self.backgrounds, self.obstacles, self.keys, self.doors, enemies]
-
+        self.MAP = [self.backgrounds, self.obstacles, self.keys, self.doors, self.enemy_system.enemies]
 
     def load_level(self, level_num):
         if level_num == 1:
+
             self.doors = [[door_ver, (768, 528)]]
             self.keys = [[key, (480, 1008)], [key, (96, 96)]]
         elif level_num == 2:
@@ -24,68 +26,47 @@ class Maze():
         elif level_num == 3:
             # Конфигурация для уровня 3
             pass
+        
     def moveEnemies(self, speed_x=8, speed_y=6):
-        id = 0
-        for enemy in enemies:
-            enemy_rect = enemy[0].get_rect(topleft=enemy[1])
-            x, y = enemy[1]
-            direction = directions_history[id][1]
-            pause = directions_history[id][2]
-            pause -= 1
-            directions = self.chooseDirection(enemy[0], enemy[1])
-            if pause <= 0:
-                pause = 2
-                if directions == directions_history[id][0] and (x, y) != directions_history[id][3]:
-                    direction = directions_history[id][1]
-                else:
-                    up_or_down = []
-                    left_or_right = []
-                    if direction == 'right' or direction == 'left':
-                        if 'up' in directions:
-                            up_or_down.append('up')
-                        if 'down' in directions:
-                            up_or_down.append('down')
-
-                    elif direction == 'up' or direction == 'down':
-                        if 'right' in directions:
-                            left_or_right.append('right')
-                        if 'left' in directions:
-                            left_or_right.append('left')
-
-                    if up_or_down:
-                        direction = choice(up_or_down)
-                    elif left_or_right:
-                        direction = choice(left_or_right)
-                    else:
-                        direction = choice(directions)
-            else:
-                direction = directions_history[id][1]
-            directions_history[id] = [directions, direction, pause, (x, y)]
+        for enemy_id, enemy in enumerate(self.enemy_system.enemies):
+            enemy_img, enemy_pos = enemy
+            enemy_rect = enemy_img.get_rect(topleft=enemy_pos)
+            history = self.enemy_system.directions_history[enemy_id]
+            
+            # Уменьшаем паузу
+            history['pause'] = max(0, history['pause'] - 1)
+            
+            # Получаем возможные направления
+            directions = self.chooseDirection(enemy_img, enemy_pos)
+            if not directions:
+                directions = ['right']  # Дефолтное направление если нет вариантов
+            
+            # Выбираем новое направление если пауза закончилась
+            if history['pause'] <= 0:
+                if directions != history['possible_directions']:
+                    # Меняем направление только если варианты изменились
+                    history['current_direction'] = choice(directions)
+                    history['pause'] = 2
+            
+            # Обновляем историю
+            history['possible_directions'] = directions
+            history['last_position'] = enemy_pos
+            
+            # Двигаем врага
+            direction = history['current_direction']
+            new_pos = list(enemy_pos)
+            
             if direction == 'up':
-                enemy_rect[1] -= speed_y
-                if not self.checkIntersection(enemy_rect, is_player=False):
-                    enemy_rect[1] += speed_y
-                    y -= speed_y
-
+                new_pos[1] -= speed_y
             elif direction == 'down':
-                enemy_rect[1] += speed_y
-                if not self.checkIntersection(enemy_rect, is_player=False):
-                    enemy_rect[1] -= speed_y
-                    y += speed_y
-
-            elif direction == 'right':
-                enemy_rect[0] += speed_x
-                if not self.checkIntersection(enemy_rect, is_player=False):
-                    enemy_rect[0] -= speed_x
-                    x += speed_x
-
+                new_pos[1] += speed_y
             elif direction == 'left':
-                enemy_rect[0] -= speed_x
-                if not self.checkIntersection(enemy_rect, is_player=False):
-                    enemy_rect[0] += speed_x
-                    x -= speed_x
-            enemy[1] = (x, y)
-            id += 1
+                new_pos[0] -= speed_x
+            elif direction == 'right':
+                new_pos[0] += speed_x
+            
+            # Обновляем позицию
+            enemy[1] = tuple(new_pos)
 
     def chooseDirection(self, enemy, coord, speed_x=8, speed_y=6):
         directions = []
@@ -105,7 +86,7 @@ class Maze():
             directions.append('down')
         rect[1] -= speed_y
 
-        return directions
+        return directions if directions else ['right']
 
     def drawMap(self, screen):
         for group in self.MAP:
@@ -155,11 +136,23 @@ class Maze():
 
 class Enemy():
     def __init__(self):
-        pass
-
+        self.enemies = []  # Список врагов вида [[img, pos], ...]
+        self.directions_history = {}  # Словарь истории направлений
+    
     def addEnemy(self, img, coord):
-        enemies.append([img, coord])
-        directions_history[len(directions_history)] = [[], 'right', 2, coord]
+        enemy_id = len(self.enemies)  # ID равен текущему количеству врагов
+        self.enemies.append([img, coord])
+        # Инициализируем запись для этого врага
+        self.directions_history[enemy_id] = {
+            'possible_directions': [],
+            'current_direction': 'right',
+            'pause': 2,
+            'last_position': coord
+        }
+    
+    def clear(self):
+        self.enemies.clear()
+        self.directions_history.clear()
 
 
 enemies = []

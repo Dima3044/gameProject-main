@@ -34,9 +34,7 @@ class Menu:
     
     def draw_pause_menu(self):
         # Полупрозрачный фон
-        s = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
-        s.fill((0, 0, 0, 128))
-        self.screen.blit(s, (0, 0))
+        self.screen.fill((30, 30, 40))
         
         options = ["ПРОДОЛЖИТЬ", "ВЫЙТИ В МЕНЮ", "ВЫЙТИ ИЗ ИГРЫ"]
         for i, opt in enumerate(options):
@@ -51,15 +49,26 @@ class Menu:
                 sys.exit()
                 
             if event.type == pygame.KEYDOWN:
+                # Обработка движения вниз
                 if event.key == pygame.K_DOWN:
-                    self.selected = (self.selected + 1) % (3 if self.paused or self.menu_active else 4)
+                    if self.paused:
+                        self.selected = min(self.selected + 1, 2)  # Пауза: 3 варианта (0-2)
+                    elif self.menu_active:
+                        self.selected = min(self.selected + 1, 1)  # Главное меню: 2 варианта (0-1)
+                    else:
+                        self.selected = min(self.selected + 1, 3)  # Уровни: 4 варианта (0-3)
+                        
+                # Обработка движения вверх
                 elif event.key == pygame.K_UP:
-                    self.selected = (self.selected - 1) % (3 if self.paused or self.menu_active else 4)
+                    self.selected = max(self.selected - 1, 0)  # Не даем уйти ниже 0
+                    
                 elif event.key == pygame.K_RETURN:
                     return self.get_selected_action()
+                    
                 elif event.key == pygame.K_ESCAPE:
                     if self.paused:
                         return "continue"
+        
         return None
     
     def get_selected_action(self):

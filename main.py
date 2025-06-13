@@ -10,26 +10,23 @@ pygame.display.set_caption("Лабиринт")
 
 # Загрузка ресурсов
 def load_level(level_num):
-    maze = Maze()
-    enemy = Enemy()
+    # Создаем новую систему врагов
+    enemy_system = Enemy()
     
-    # Здесь будет загрузка конкретного уровня
+    # Создаем лабиринт
+    maze = Maze(enemy_system)
+    
+    # Настраиваем уровень
     if level_num == 1:
-        zombie_img = pygame.image.load('images/zombie.png')
-        enemy.addEnemy(zombie_img, (352, 1008))
-        # Настройки для уровня 1
+        zombie_img = pygame.image.load('images/zombie.png').convert_alpha()
+        enemy_system.addEnemy(zombie_img, (352, 1008))  # Теперь правильно инициализирует directions_history
     elif level_num == 2:
-        # Настройки для уровня 2
         pass
     elif level_num == 3:
-        # Настройки для уровня 3
         pass
-        
-    player_obj = Player()
-    return maze, player_obj
+    return maze, Player(), enemy_system
 
-def game_loop(level_num, screen):
-    maze, player_obj = load_level(level_num)
+def game_loop(maze, player_obj, enemy_system, screen):
     running = True
     while running:
         # Очистка экрана
@@ -86,7 +83,11 @@ def main():
                 current_screen = "main_menu"
                 
         elif current_screen == "game":
-            result = game_loop(level, screen)
+            # Загружаем уровень с нужными параметрами
+            maze, player_obj, enemy_system = load_level(level)
+            
+            # Передаем все 4 аргумента
+            result = game_loop(maze, player_obj, enemy_system, screen)
             
             if result == "pause":
                 current_screen = "pause"
