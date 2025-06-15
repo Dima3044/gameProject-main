@@ -70,3 +70,4 @@ class Player():
         self.anim_count += 1
         if self.anim_count >= 2:
             self.anim_count = 0
+

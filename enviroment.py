@@ -107,6 +107,16 @@ class Maze():
                     y += speed_y
                 obj[1] = (x, y)
 
+    def check_victory(self):
+        return len(self.doors) == 0  # Победа, когда все двери открыты
+    
+    def check_defeat(self, player_rect):
+        for enemy_img, enemy_pos in self.enemy_system.enemies:
+            enemy_rect = enemy_img.get_rect(topleft=enemy_pos)
+            if player_rect.colliderect(enemy_rect):
+                return True
+        return False
+
     def checkIntersection(self, rect, is_player=True):
         obstacles_rect_list = []
         if is_player:

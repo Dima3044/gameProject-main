@@ -31,6 +31,11 @@ def game_loop(maze, player_obj, enemy_system, screen):
     while running:
         # Очистка экрана
         screen.fill((0, 0, 0))
+
+        if maze.check_victory():
+            return "level_complete"
+        if maze.check_defeat(player_obj.player_rect):
+            return "game_over"
         
         # Игровая логика
         maze.moveEnemies()
@@ -53,65 +58,77 @@ def game_loop(maze, player_obj, enemy_system, screen):
     
     return "main_menu"
 
+
 def main():
+    pygame.init()
+    screen = pygame.display.set_mode((800, 600))
+    clock = pygame.time.Clock()
     menu = Menu(screen)
-    current_screen = "main_menu"  # main_menu/level_select/game/pause
-    level = 1
     
-    while True:
-        if current_screen == "main_menu":
-            menu.menu_active = True
-            menu.paused = False
-            menu.draw_main_menu()
-            action = menu.handle_events()
-            
-            if action == "level_select":
-                current_screen = "level_select"
-            elif action == "quit":
-                pygame.quit()
-                return
-                
-        elif current_screen == "level_select":
-            menu.menu_active = False
-            menu.draw_level_select()
-            action = menu.handle_events()
-            
-            if action in ["level1", "level2", "level3"]:
-                level = int(action[-1])
-                current_screen = "game"
-            elif action == "back":
-                current_screen = "main_menu"
-                
-        elif current_screen == "game":
-            # Загружаем уровень с нужными параметрами
-            maze, player_obj, enemy_system = load_level(level)
-            
-            # Передаем все 4 аргумента
-            result = game_loop(maze, player_obj, enemy_system, screen)
-            
-            if result == "pause":
-                current_screen = "pause"
-            elif result == "quit":
-                pygame.quit()
-                return
-            elif result == "main_menu":
-                current_screen = "main_menu"
-                
-        elif current_screen == "pause":
-            menu.paused = True
-            menu.draw_pause_menu()
-            action = menu.handle_events()
-            
-            if action == "continue":
-                current_screen = "game"
-            elif action == "main_menu":
-                current_screen = "main_menu"
-            elif action == "quit":
-                pygame.quit()
-                return
-                
-        pygame.display.update()
+    game_state = {
+        "current": "menu",
+        "level": 1,
+        "objects": None
+    }
+    
+    running = True
+    while running:
+        events = pygame.event.get()
+        
+        # Обработка выхода
+        for event in events:
+            if event.type == pygame.QUIT:
+                running = False
+        
+        # Обработка ввода
+        action = None
+        if game_state["current"] != "game":
+            action = menu.handle_input(events)
+        
+        # Обработка действий
+        if action == "levels":
+            menu.current_menu = "levels"
+        elif action == "back":
+            menu.current_menu = "main"
+        elif action in ["level1", "level2", "level3"]:
+            game_state["level"] = int(action[-1])
+            game_state["objects"] = load_level(game_state["level"])
+            game_state["current"] = "game"
+        elif action == "continue":
+            game_state["current"] = "game"
+        elif action == "menu":
+            game_state["current"] = "menu"
+            menu.current_menu = "main"
+        elif action == "retry":
+            game_state["objects"] = load_level(game_state["level"])
+            game_state["current"] = "game"
+        elif action == "quit":
+            running = False
+        
+        # Игровая логика
+        if game_state["current"] == "game":
+            result = game_loop(*game_state["objects"], screen)
+            if result == "level_complete":
+                game_state["current"] = "victory"
+                menu.current_menu = "victory"
+            elif result == "game_over":
+                game_state["current"] = "defeat"
+                menu.current_menu = "defeat"
+            elif result == "pause":
+                game_state["current"] = "pause"
+                menu.current_menu = "pause"
+        
+        # Отрисовка
+        screen.fill((0, 0, 0))
+        if game_state["current"] == "game":
+            pass
+        else:
+            menu.draw()
+        
+        pygame.display.flip()
         clock.tick(60)
+    
+    pygame.quit()
 
 if __name__ == "__main__":
     main()
