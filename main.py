@@ -11,6 +11,7 @@ pygame.display.set_caption("Лабиринт")
 
 
 def load_level(level_num):
+    """Загрузка выбранного уровня"""
     enemy_system = Enemy()
     maze = Maze(enemy_system)
     maze.load_level(level_num)
@@ -18,6 +19,7 @@ def load_level(level_num):
 
 
 def game_loop(maze, player_obj, enemy_system, screen):
+    """Основной цикл с обработкой ситуации"""
     running = True
     while running:
         # Очистка экрана
@@ -31,7 +33,6 @@ def game_loop(maze, player_obj, enemy_system, screen):
         # Игровая логика
         maze.moveEnemies()
         maze.drawMap(screen)
-        maze.drawInventory(screen)
 
         keys = pygame.key.get_pressed()
         player_obj.move(maze, keys)

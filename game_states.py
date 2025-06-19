@@ -65,7 +65,7 @@ def draw_defeat_screen(screen):
 
 
 def handle_endgame_events():
-    """Обработка событий на экранах победы/поражения (неблокирующая версия)"""
+    """Обработка событий на экранах победы/поражения"""
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()

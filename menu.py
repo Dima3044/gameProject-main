@@ -16,6 +16,7 @@ class Menu:
         }
 
     def handle_input(self, events):
+        """Перемещение по меню, использует приватные методы"""
         for event in events:
             if event.type == pygame.KEYDOWN:
                 # Обработка перемещения
@@ -68,61 +69,33 @@ class Menu:
             return "menu"
 
     def draw(self):
+        """Рисует нужное меню"""
         self.screen.fill((30, 30, 40))  # Темно-серый фон
 
         if self.current_menu == "main":
-            self.draw_main_menu()
+            title = self.font.render("ЛАБИРИНТ", True, (255, 255, 255))
+            options = ["ВЫБРАТЬ УРОВЕНЬ", "ВЫЙТИ ИЗ ИГРЫ"]
+
         elif self.current_menu == "levels":
-            self.draw_level_select()
+            title = self.font.render("ВЫБЕРИТЕ УРОВЕНЬ", True, (255, 255, 255))
+            options = ["Уровень 1", "Уровень 2", "Уровень 3", "НАЗАД"]
+
         elif self.current_menu == "pause":
-            self.draw_pause_menu()
+            title = self.font.render("ПАУЗА", True, (255, 255, 255))
+            options = ["ПРОДОЛЖИТЬ", "ВЫЙТИ В МЕНЮ", "ВЫЙТИ ИЗ ИГРЫ"]
+
         elif self.current_menu == "victory":
             self.sounds['victory'].play()
-            self.draw_victory_screen()
+            title = self.font.render("УРОВЕНЬ ПРОЙДЕН!", True, (0, 255, 0))
+            options = ["ВЫЙТИ В МЕНЮ"]
+
         elif self.current_menu == "defeat":
             self.sounds['lose'].play()
-            self.draw_defeat_screen()
+            title = self.font.render("ВЫ ПРОИГРАЛИ!", True, (255, 0, 0))
+            options = ["ПОВТОРИТЬ УРОВЕНЬ", "ВЫЙТИ В МЕНЮ"]
 
-    def draw_main_menu(self):
-        title = self.font.render("ЛАБИРИНТ", True, (255, 255, 255))
         self.screen.blit(title, (self.width//2 - title.get_width()//2, 50))
-
-        options = ["ВЫБРАТЬ УРОВЕНЬ", "ВЫЙТИ ИЗ ИГРЫ"]
-        for i, opt in enumerate(options):
-            color = (255, 215, 0) if i == self.selected else (255, 255, 255)
-            text = self.font.render(opt, True, color)
-            self.screen.blit(text, (self.width//2 - text.get_width()//2, 150 + i*60))
-
-    def draw_level_select(self):
-        title = self.font.render("ВЫБЕРИТЕ УРОВЕНЬ", True, (255, 255, 255))
-        self.screen.blit(title, (self.width//2 - title.get_width()//2, 50))
-
-        levels = ["Уровень 1", "Уровень 2", "Уровень 3", "НАЗАД"]
-        for i, level in enumerate(levels):
-            color = (255, 215, 0) if i == self.selected else (255, 255, 255)
-            text = self.font.render(level, True, color)
-            self.screen.blit(text, (self.width//2 - text.get_width()//2, 150 + i*50))
-
-    def draw_pause_menu(self):
-        options = ["ПРОДОЛЖИТЬ", "ВЫЙТИ В МЕНЮ", "ВЫЙТИ ИЗ ИГРЫ"]
-        for i, opt in enumerate(options):
-            color = (255, 215, 0) if i == self.selected else (255, 255, 255)
-            text = self.font.render(opt, True, color)
-            self.screen.blit(text, (self.width//2 - text.get_width()//2, 150 + i*60))
-
-    def draw_victory_screen(self):
-        title = self.font.render("УРОВЕНЬ ПРОЙДЕН!", True, (0, 255, 0))
-        self.screen.blit(title, (self.width//2 - title.get_width()//2, 50))
-
-        option = self.font.render("ВЫЙТИ В МЕНЮ", True, 
-                                (255, 215, 0) if self.selected == 0 else (255, 255, 255))
-        self.screen.blit(option, (self.width//2 - option.get_width()//2, 150))
-
-    def draw_defeat_screen(self):
-        title = self.font.render("ВЫ ПРОИГРАЛИ!", True, (255, 0, 0))
-        self.screen.blit(title, (self.width//2 - title.get_width()//2, 50))
-
-        options = ["ПОВТОРИТЬ УРОВЕНЬ", "ВЫЙТИ В МЕНЮ"]
+        
         for i, opt in enumerate(options):
             color = (255, 215, 0) if i == self.selected else (255, 255, 255)
             text = self.font.render(opt, True, color)

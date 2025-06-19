@@ -1,6 +1,5 @@
 import pygame
 from random import choice
-#import copy  # Для глубокого копирования
 import levels
 
 pygame.init()
@@ -8,119 +7,125 @@ pygame.init()
 
 class Maze():
     def __init__(self, enemy_system):
-        self.enemy_system = enemy_system  # Принимаем систему врагов
-        self.keys = []
-        self.obstacles = [[img.copy(), pos] for img, pos in obstacles]
-        self.backgrounds = [[img.copy(), pos] for img, pos in backgrounds]
-        self.doors = []
-        self.inventory = []
-        self.finish = (800, 1296)
-        self.MAP = [self.backgrounds, self.obstacles, self.keys, self.doors, self.enemy_system.enemies]
+        self.enemy_system = enemy_system  # Система врагов
+        self.enemy_right = pygame.image.load('images/ghost/ghost_right.png').convert_alpha()
+        self.enemy_left = pygame.image.load('images/ghost/ghost_left.png').convert_alpha()
+        self.keys = []  # Список для ключей и координат
+        self.obstacles = [[img.copy(), pos] for img, pos in obstacles]  # Копирование из obstacles
+        self.backgrounds = [[img.copy(), pos] for img, pos in backgrounds]  # Копирование из backgrounds
+        self.doors = [] 
+        self.inventory = []  # Инвентарь для отображения ключей
+        self.finish = (800, 1296)  # Метка для отслеживания выхода из лабиринта
+        self.MAP = [self.backgrounds, self.obstacles, self.keys, self.doors, self.enemy_system.enemies] 
+        # MAP чтобы все элементы окружения были в одном списке
 
         self.sounds = {
-            'pick_up_key': pygame.mixer.Sound('sounds/world/pick_up_key.wav'),
-            'opened_door': pygame.mixer.Sound('sounds/world/opened_door.wav'),
-            'closed_door': pygame.mixer.Sound('sounds/world/closed_door.wav')
+            'pick_up_key': pygame.mixer.Sound('sounds/world/pick_up_key.wav'),  # звук для подбора ключей
+            'opened_door': pygame.mixer.Sound('sounds/world/opened_door.wav'),  # звук открывания двери
+            'closed_door': pygame.mixer.Sound('sounds/world/closed_door.wav')   # попытка открыть дверь без ключа
         }
 
     def load_level(self, level_num):
-            config = levels.LEVEL_CONFIGS.get(level_num, {})
-            
+            level_config = levels.LEVEL_CONFIGS.get(level_num, {})
             # Очищаем предыдущие объекты
             self.enemy_system.clear()
             self.keys = []
             self.doors = []
-            
+
+            # Загрузка из конфига
             # Загружаем врагов
-            for enemy_data in config.get('enemies', []):
+            for enemy_data in level_config.get('enemies', []):
                 img = pygame.image.load(enemy_data['img']).convert_alpha()
                 self.enemy_system.addEnemy(img, enemy_data['pos'])
-            
+
             # Загружаем ключи
-            for key_data in config.get('keys', []):
+            for key_data in level_config.get('keys', []):
                 img = pygame.image.load(key_data['img']).convert_alpha()
                 self.keys.append([img, key_data['pos']])
-            
+
             # Загружаем двери
-            for door_data in config.get('doors', []):
+            for door_data in level_config.get('doors', []):
                 img = pygame.image.load(door_data['img']).convert_alpha()
                 self.doors.append([img, door_data['pos']])
-            
+
             # Обновляем карту
-            self.MAP = [self.backgrounds, self.obstacles, self.keys, 
-                    self.doors, self.enemy_system.enemies]
-        
+            self.MAP = [self.backgrounds, self.obstacles, self.keys,
+                self.doors, self.enemy_system.enemies]
+
     def moveEnemies(self, speed_x=8, speed_y=6):
         for enemy_id, enemy in enumerate(self.enemy_system.enemies):
             enemy_img, enemy_pos = enemy
             enemy_rect = enemy_img.get_rect(topleft=enemy_pos)
             history = self.enemy_system.directions_history[enemy_id]
-            
+
             # Уменьшаем паузу
             history['pause'] = max(0, history['pause'] - 1)
-            
+
             # Получаем возможные направления
             directions = self.chooseDirection(enemy_img, enemy_pos)
             if not directions:
                 directions = ['right']  # Дефолтное направление если нет вариантов
-            
+
             # Выбираем новое направление если пауза закончилась
             if history['pause'] <= 0:
                 if directions != history['possible_directions']:
                     # Меняем направление только если варианты изменились
                     history['current_direction'] = choice(directions)
                     history['pause'] = 2
-            
+
             # Обновляем историю
             history['possible_directions'] = directions
             history['last_position'] = enemy_pos
-            
+
             # Двигаем врага
             direction = history['current_direction']
             new_pos = list(enemy_pos)
-            
+
             if direction == 'up':
                 new_pos[1] -= speed_y
             elif direction == 'down':
                 new_pos[1] += speed_y
             elif direction == 'left':
+                enemy[0] = self.enemy_left
                 new_pos[0] -= speed_x
             elif direction == 'right':
+                enemy[0] = self.enemy_right
                 new_pos[0] += speed_x
-            
+
             # Обновляем позицию
             enemy[1] = tuple(new_pos)
 
     def chooseDirection(self, enemy, coord, speed_x=8, speed_y=6):
-        directions = []
+        directions = []  # Сначала пусто
         rect = enemy.get_rect(topleft=coord)
+
+        # По очереди проверяем, есть у врага место со всех сторон
         rect[0] += speed_x
-        if not self.checkIntersection(rect, is_player=False):
+        if not self.check_intersection(rect, is_player=False):
             directions.append('right')
         rect[0] -= speed_x * 2
-        if not self.checkIntersection(rect, is_player=False):
+        if not self.check_intersection(rect, is_player=False):
             directions.append('left')
         rect[0] += speed_x
         rect[1] -= speed_y
-        if not self.checkIntersection(rect, is_player=False):
+        if not self.check_intersection(rect, is_player=False):
             directions.append('up')
         rect[1] += speed_x * 2
-        if not self.checkIntersection(rect, is_player=False):
+        if not self.check_intersection(rect, is_player=False):
             directions.append('down')
         rect[1] -= speed_y
 
+        # Возвращаем список возможных направлений
         return directions if directions else ['right']
 
-    def drawMap(self, screen):
-        for group in self.MAP:
+    def drawMap(self, screen):  
+        for group in self.MAP:  # Отрисовка окружения
             for obs, coord in group:
                 screen.blit(obs, coord)
-
-    def drawInventory(self, screen):
-        for item, coord in self.inventory:
+        for item, coord in self.inventory:  # Отрисовка инвентаря
             screen.blit(item, coord)
 
-    def moveMap(self, speed_x=0, speed_y=0):
+    def moveMap(self, speed_x=0, speed_y=0):  # Перемещение всех объектов в MAP
         for group in self.MAP:
             for obj in group:
                 x, y = obj[1]
@@ -130,10 +135,7 @@ class Maze():
                     y += speed_y
                 obj[1] = (x, y)
 
-        self.moveFinish(speed_x, speed_y)
-
-    def moveFinish(self, speed_x=0, speed_y=0):
-        x, y = self.finish
+        x, y = self.finish  # И финиша
         if speed_x != 0:
             x += speed_x
         if speed_y != 0:
@@ -141,43 +143,41 @@ class Maze():
         self.finish = (x, y)
 
     def check_victory(self):
-        # Проверяем, осталась ли в лабиринте "выходная" дверь
+        # Проверка, вышел ли игрок из лабиринта
         if self.finish[1] <= 240:
-            return True  # Победа, если выходной двери нет в списке
+            return True
         return False
 
-    def check_defeat(self, player_rect):
+    def check_defeat(self, player_rect):  # Проигрыш при контакте с врагом
         for enemy_img, enemy_pos in self.enemy_system.enemies:
             enemy_rect = enemy_img.get_rect(topleft=enemy_pos)
             if player_rect.colliderect(enemy_rect):
                 return True
         return False
 
-    def checkIntersection(self, rect, is_player=True):
+    def check_intersection(self, rect, is_player=True):
         obstacles_rect_list = []
-        if is_player:
+        if is_player:  # Проверка что двигается игрок, чтобы враги не воровали ключи, например
             keys_rect_list = [key.get_rect(topleft=coord) for key, coord in self.keys]
             for index, key_rect in enumerate(keys_rect_list):
                 if key_rect.colliderect(rect):
                     self.keys.pop(index)
-                    key_x = len(self.inventory) * 32
-                    self.sounds['pick_up_key'].play()
-                    self.inventory.append([key, (key_x, 0)])
+                    key_x = len(self.inventory) * 32  # 32 пикселя - размер ключа
+                    self.sounds['pick_up_key'].play()  # звук для ключа
+                    self.inventory.append([key, (key_x, 0)])  # добавление в инвентарь
 
             doors_rect_list = [door.get_rect(topleft=coord) for door, coord in self.doors]
             for index, door_rect in enumerate(doors_rect_list):
                 if door_rect.colliderect(rect):
-                    if not self.inventory:
-                        if hasattr(self, 'sounds') and 'closed_door' in self.sounds:
-                            self.sounds['closed_door'].play()
+                    if not self.inventory:  # если нет ключа, но есть контакт с дверью
+                        self.sounds['closed_door'].play()
                         return True
-                    else:
+                    else:  # если ключ есть
                         self.doors.pop(index)  # Удаляем конкретную дверь, с которой столкнулись
                         self.inventory.pop()
-                        if hasattr(self, 'sounds') and 'opened_door' in self.sounds:
-                            self.sounds['opened_door'].play()
+                        self.sounds['opened_door'].play()
                         return True
-
+        # Проверка на столкновение со стеной, общее для врагов и игрока
         obstacles_rect_list = [obstacle.get_rect(topleft=coord) for obstacle, coord in self.obstacles]
         for obs_rect in obstacles_rect_list:
             if obs_rect.colliderect(rect):
@@ -206,8 +206,7 @@ class Enemy():
         self.directions_history.clear()
 
 
-enemies = []
-directions_history = {}
+key = pygame.image.load('images/key.png')
 background = pygame.image.load('images/background.png')
 screen = pygame.display.set_mode((300, 300), pygame.FULLSCREEN)
 obstacles = [
@@ -299,9 +298,6 @@ obstacles = [
     [pygame.image.load('images/obstacles/obstacle86.png').convert_alpha(), (704, 672)],
     [pygame.image.load('images/obstacles/obstacle87.png').convert_alpha(), (704, 720)],
 ]
-obstacles_rect_list = []
-keys_rect_list = []
-doors = []
 backgrounds = [
     [background, (0, 0)],
     [background, (-864, 0)],
@@ -313,6 +309,3 @@ backgrounds = [
     [background, (864, -1296)],
     [background, (864, 0)]
 ]
-
-
-key = pygame.image.load('images/key.png')

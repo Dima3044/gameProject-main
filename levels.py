@@ -2,7 +2,7 @@
 LEVEL_CONFIGS = {
     1: {
         'enemies': [
-           {'img': 'images/zombie.png', 'pos': (288, 1008)},
+           {'img': 'images/ghost/ghost_right.png', 'pos': (288, 1008)},
         ],
         'keys': [
             {'img': 'images/key.png', 'pos': (80, 528)},
@@ -17,8 +17,8 @@ LEVEL_CONFIGS = {
     },
     2: {
         'enemies': [
-            {'img': 'images/zombie.png', 'pos': (256, 1200)},
-            {'img': 'images/zombie.png', 'pos': (288, 1008)}
+            {'img': 'images/ghost/ghost_right.png', 'pos': (256, 1200)},
+            {'img': 'images/ghost/ghost_right.png', 'pos': (288, 1008)}
         ],
         'keys': [
             {'img': 'images/key.png', 'pos': (256, 816)},
@@ -36,10 +36,10 @@ LEVEL_CONFIGS = {
     },
     3: {
         'enemies': [
-            {'img': 'images/zombie.png', 'pos': (32, 48)},
-            {'img': 'images/zombie.png', 'pos': (352, 48)},
-            {'img': 'images/zombie.png', 'pos': (160, 720)},
-            {'img': 'images/zombie.png', 'pos': (288, 1200)},
+            {'img': 'images/ghost/ghost_right.png', 'pos': (32, 48)},
+            {'img': 'images/ghost/ghost_right.png', 'pos': (352, 48)},
+            {'img': 'images/ghost/ghost_righte.png', 'pos': (160, 720)},
+            {'img': 'images/ghost/ghost_right.png', 'pos': (288, 1200)},
         ],
         'keys': [
             {'img': 'images/key.png', 'pos': (672, 48)},
