@@ -80,6 +80,7 @@ def main():
         # Обработка действий
         if action == "levels":
             menu.current_menu = "levels"
+            menu.selected = 0
         elif action == "back":
             menu.current_menu = "main"
             menu.selected = 0
@@ -105,12 +106,15 @@ def main():
             if result == "level_complete":
                 game_state["current"] = "victory"
                 menu.current_menu = "victory"
+                menu.selected = 0
             elif result == "game_over":
                 game_state["current"] = "defeat"
                 menu.current_menu = "defeat"
+                menu.selected = 0
             elif result == "pause":
                 game_state["current"] = "pause"
                 menu.current_menu = "pause"
+                menu.selected = 0
         else:
             ambient.stop()
 

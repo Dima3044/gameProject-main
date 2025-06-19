@@ -71,7 +71,6 @@ class Menu:
     def draw(self):
         """Рисует нужное меню"""
         self.screen.fill((30, 30, 40))  # Темно-серый фон
-
         if self.current_menu == "main":
             title = self.font.render("ЛАБИРИНТ", True, (255, 255, 255))
             options = ["ВЫБРАТЬ УРОВЕНЬ", "ВЫЙТИ ИЗ ИГРЫ"]
@@ -95,7 +94,7 @@ class Menu:
             options = ["ПОВТОРИТЬ УРОВЕНЬ", "ВЫЙТИ В МЕНЮ"]
 
         self.screen.blit(title, (self.width//2 - title.get_width()//2, 50))
-        
+
         for i, opt in enumerate(options):
             color = (255, 215, 0) if i == self.selected else (255, 255, 255)
             text = self.font.render(opt, True, color)

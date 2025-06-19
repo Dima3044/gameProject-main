@@ -38,7 +38,7 @@ LEVEL_CONFIGS = {
         'enemies': [
             {'img': 'images/ghost/ghost_right.png', 'pos': (32, 48)},
             {'img': 'images/ghost/ghost_right.png', 'pos': (352, 48)},
-            {'img': 'images/ghost/ghost_righte.png', 'pos': (160, 720)},
+            {'img': 'images/ghost/ghost_right.png', 'pos': (160, 720)},
             {'img': 'images/ghost/ghost_right.png', 'pos': (288, 1200)},
         ],
         'keys': [

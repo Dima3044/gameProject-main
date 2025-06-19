@@ -58,7 +58,7 @@ class Player():
             if maze.check_intersection(self.player_rect):
                 maze.moveMap(speed_y=self.player_speed_y)
             self.is_moving = True
-        
+
         else:  # Если стрелочки не нажаты
             self.is_moving = False
 
