@@ -6,6 +6,7 @@ from menu import Menu
 pygame.init()
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((800, 600))  # Увеличим размер окна
+ambient = pygame.mixer.Sound('sounds/world/ambient.mp3')
 pygame.display.set_caption("Лабиринт")
 
 
@@ -109,6 +110,7 @@ def main():
 
         # Игровая логика
         if game_state["current"] == "game":
+            ambient.play()
             result = game_loop(*game_state["objects"], screen)
             if result == "level_complete":
                 game_state["current"] = "victory"
@@ -119,7 +121,9 @@ def main():
             elif result == "pause":
                 game_state["current"] = "pause"
                 menu.current_menu = "pause"
-
+        else:
+            ambient.stop()
+            
         # Отрисовка
         screen.fill((0, 0, 0))
         if game_state["current"] == "game":

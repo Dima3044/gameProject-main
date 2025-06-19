@@ -17,7 +17,7 @@ class Player():
         self.player_speed_y = 12
         self.player_hit_box = pygame.image.load('images/player_front/player_hit_box.png').convert_alpha()
         self.walk_sound = pygame.mixer.Sound('sounds/player/walk_sound.wav')
-        self.step_delay = 300
+        self.step_delay = 200
         self.last_step_time = 0
         self.player_front_walking = [
             pygame.image.load('images/player_front/front2.png').convert_alpha(),
