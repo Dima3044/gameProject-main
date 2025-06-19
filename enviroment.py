@@ -142,7 +142,6 @@ class Maze():
 
     def check_victory(self):
         # Проверяем, осталась ли в лабиринте "выходная" дверь
-        print(self.finish)
         if self.finish[1] <= 240:
             return True  # Победа, если выходной двери нет в списке
         return False

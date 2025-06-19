@@ -99,7 +99,7 @@ def main():
 
         # Игровая логика
         if game_state["current"] == "game":
-            ambient.play()
+            ambient.play(loops=-1)
             result = game_loop(*game_state["objects"], screen)
             if result == "level_complete":
                 game_state["current"] = "victory"
