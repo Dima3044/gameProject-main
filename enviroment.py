@@ -15,6 +15,12 @@ class Maze():
         self.inventory = []
         self.MAP = [self.backgrounds, self.obstacles, self.keys, self.doors, self.enemy_system.enemies]
 
+        self.sounds = {
+            'pick_up_key': pygame.mixer.Sound('sounds/world/pick_up_key.wav'),
+            'opened_door': pygame.mixer.Sound('sounds/world/opened_door.wav'),
+            'closed_door': pygame.mixer.Sound('sounds/world/closed_door.wav')
+        }
+
     def load_level(self, level_num):
         if level_num == 1:
 
@@ -125,16 +131,19 @@ class Maze():
                 if key_rect.colliderect(rect):
                     self.keys.pop(index)
                     key_x = len(self.inventory) * 32
+                    self.sounds['pick_up_key'].play()
                     self.inventory.append([key, (key_x, 0)])
 
             doors_rect_list = [door.get_rect(topleft=coord) for door, coord in self.doors]
             for door_rect in doors_rect_list:
                 if door_rect.colliderect(rect):
                     if not self.inventory:
+                        self.sounds['closed_door'].play()
                         return True
                     else:
                         self.doors.pop(0)
                         self.inventory.pop()
+                        self.sounds['opened_door'].play()
                         return True
 
         obstacles_rect_list = [obstacle.get_rect(topleft=coord) for obstacle, coord in self.obstacles]
