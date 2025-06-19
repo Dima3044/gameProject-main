@@ -8,23 +8,24 @@ clock = pygame.time.Clock()
 screen = pygame.display.set_mode((800, 600))  # Увеличим размер окна
 pygame.display.set_caption("Лабиринт")
 
-# Загрузка ресурсов
+
 def load_level(level_num):
     # Создаем новую систему врагов
     enemy_system = Enemy()
-    
+
     # Создаем лабиринт
     maze = Maze(enemy_system)
-    
+
     # Настраиваем уровень
     if level_num == 1:
         zombie_img = pygame.image.load('images/zombie.png').convert_alpha()
-        enemy_system.addEnemy(zombie_img, (352, 1008))  # Теперь правильно инициализирует directions_history
+        enemy_system.addEnemy(zombie_img, (352, 1008))
     elif level_num == 2:
         pass
     elif level_num == 3:
         pass
     return maze, Player(), enemy_system
+
 
 def game_loop(maze, player_obj, enemy_system, screen):
     running = True
@@ -36,18 +37,18 @@ def game_loop(maze, player_obj, enemy_system, screen):
             return "level_complete"
         if maze.check_defeat(player_obj.player_rect):
             return "game_over"
-        
+
         # Игровая логика
         maze.moveEnemies()
         maze.drawMap(screen)
         maze.drawInventory(screen)
-        
+
         keys = pygame.key.get_pressed()
         player_obj.move(maze, keys)
-        
+
         pygame.display.update()
         clock.tick(15)
-        
+
         # Обработка событий
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -55,7 +56,7 @@ def game_loop(maze, player_obj, enemy_system, screen):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     return "pause"
-    
+
     return "main_menu"
 
 
@@ -64,27 +65,27 @@ def main():
     screen = pygame.display.set_mode((800, 600))
     clock = pygame.time.Clock()
     menu = Menu(screen)
-    
+
     game_state = {
         "current": "menu",
         "level": 1,
         "objects": None
     }
-    
+
     running = True
     while running:
         events = pygame.event.get()
-        
+
         # Обработка выхода
         for event in events:
             if event.type == pygame.QUIT:
                 running = False
-        
+
         # Обработка ввода
         action = None
         if game_state["current"] != "game":
             action = menu.handle_input(events)
-        
+
         # Обработка действий
         if action == "levels":
             menu.current_menu = "levels"
@@ -105,7 +106,7 @@ def main():
             game_state["current"] = "game"
         elif action == "quit":
             running = False
-        
+
         # Игровая логика
         if game_state["current"] == "game":
             result = game_loop(*game_state["objects"], screen)
@@ -118,18 +119,19 @@ def main():
             elif result == "pause":
                 game_state["current"] = "pause"
                 menu.current_menu = "pause"
-        
+
         # Отрисовка
         screen.fill((0, 0, 0))
         if game_state["current"] == "game":
             pass
         else:
             menu.draw()
-        
+
         pygame.display.flip()
         clock.tick(60)
-    
+
     pygame.quit()
+
 
 if __name__ == "__main__":
     main()

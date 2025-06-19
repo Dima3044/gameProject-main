@@ -1,6 +1,6 @@
 import pygame
 from random import choice
-import copy  # Для глубокого копирования
+#import copy  # Для глубокого копирования
 
 pygame.init()
 
@@ -109,7 +109,7 @@ class Maze():
 
     def check_victory(self):
         return len(self.doors) == 0  # Победа, когда все двери открыты
-    
+
     def check_defeat(self, player_rect):
         for enemy_img, enemy_pos in self.enemy_system.enemies:
             enemy_rect = enemy_img.get_rect(topleft=enemy_pos)
@@ -148,7 +148,7 @@ class Enemy():
     def __init__(self):
         self.enemies = []  # Список врагов вида [[img, pos], ...]
         self.directions_history = {}  # Словарь истории направлений
-    
+
     def addEnemy(self, img, coord):
         enemy_id = len(self.enemies)  # ID равен текущему количеству врагов
         self.enemies.append([img, coord])
@@ -159,7 +159,7 @@ class Enemy():
             'pause': 2,
             'last_position': coord
         }
-    
+
     def clear(self):
         self.enemies.clear()
         self.directions_history.clear()
