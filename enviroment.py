@@ -14,6 +14,7 @@ class Maze():
         self.backgrounds = [[img.copy(), pos] for img, pos in backgrounds]
         self.doors = []
         self.inventory = []
+        self.finish = (800, 1296)
         self.MAP = [self.backgrounds, self.obstacles, self.keys, self.doors, self.enemy_system.enemies]
 
         self.sounds = {
@@ -129,8 +130,22 @@ class Maze():
                     y += speed_y
                 obj[1] = (x, y)
 
+        self.moveFinish(speed_x, speed_y)
+
+    def moveFinish(self, speed_x=0, speed_y=0):
+        x, y = self.finish
+        if speed_x != 0:
+            x += speed_x
+        if speed_y != 0:
+            y += speed_y
+        self.finish = (x, y)
+
     def check_victory(self):
-        return len(self.doors) == 0  # Победа, когда все двери открыты
+        # Проверяем, осталась ли в лабиринте "выходная" дверь
+        print(self.finish)
+        if self.finish[1] <= 240:
+            return True  # Победа, если выходной двери нет в списке
+        return False
 
     def check_defeat(self, player_rect):
         for enemy_img, enemy_pos in self.enemy_system.enemies:
