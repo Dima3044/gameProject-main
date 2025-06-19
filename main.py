@@ -5,7 +5,7 @@ from menu import Menu
 
 pygame.init()
 clock = pygame.time.Clock()
-screen = pygame.display.set_mode((800, 600))  # Увеличим размер окна
+info = pygame.display.Info()
 ambient = pygame.mixer.Sound('sounds/world/ambient.mp3')
 pygame.display.set_caption("Лабиринт")
 
@@ -52,7 +52,7 @@ def game_loop(maze, player_obj, enemy_system, screen):
 
 def main():
     pygame.init()
-    screen = pygame.display.set_mode((800, 600))
+    screen = pygame.display.set_mode((300, 300), pygame.FULLSCREEN)
     clock = pygame.time.Clock()
     menu = Menu(screen)
 

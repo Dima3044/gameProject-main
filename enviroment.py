@@ -195,7 +195,7 @@ class Enemy():
 enemies = []
 directions_history = {}
 background = pygame.image.load('images/background.png')
-screen = pygame.display.set_mode((300, 300))
+screen = pygame.display.set_mode((300, 300), pygame.FULLSCREEN)
 obstacles = [
     [pygame.image.load('images/obstacles/obstacle1.png').convert_alpha(), (0, 0)],
     [pygame.image.load('images/obstacles/obstacle2.png').convert_alpha(), (32, 0)],

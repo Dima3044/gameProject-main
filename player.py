@@ -3,13 +3,13 @@ from enviroment import Maze
 
 pygame.init()
 
-screen = pygame.display.set_mode((300, 300))
+screen = pygame.display.set_mode((300, 300), pygame.FULLSCREEN)
 
 class Player():
     def __init__(self):
         self.player_front = pygame.image.load('images/player_front/front1.png').convert_alpha()
         self.player_back = pygame.image.load('images/player_back/back1.png').convert_alpha()
-        self.player_rect = self.player_front.get_rect(topleft=(144, 144))
+        self.player_rect = self.player_front.get_rect(topleft=(288, 240))
         self.anim_count = 0
         self.player_orientation = 'front'
         self.is_moving = False
@@ -27,8 +27,8 @@ class Player():
         self.player_back_walking = [
             pygame.image.load('images/player_back/back2.png').convert_alpha(),
             pygame.image.load('images/player_back/back3.png').convert_alpha(),
-]
-        
+        ]
+
     def move(self, maze, keys):
         current_time = pygame.time.get_ticks()
         if keys[pygame.K_LEFT]:
