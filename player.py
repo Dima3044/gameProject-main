@@ -16,6 +16,9 @@ class Player():
         self.player_speed_x = 16
         self.player_speed_y = 12
         self.player_hit_box = pygame.image.load('images/player_front/player_hit_box.png').convert_alpha()
+        self.walk_sound = pygame.mixer.Sound('sounds/player/walk_sound.wav')
+        self.step_delay = 300
+        self.last_step_time = 0
         self.player_front_walking = [
             pygame.image.load('images/player_front/front2.png').convert_alpha(),
             pygame.image.load('images/player_front/front3.png').convert_alpha(),
@@ -27,6 +30,7 @@ class Player():
 ]
         
     def move(self, maze, keys):
+        current_time = pygame.time.get_ticks()
         if keys[pygame.K_LEFT]:
             maze.moveMap(speed_x=self.player_speed_x)
             if maze.checkIntersection(self.player_rect):
@@ -57,6 +61,11 @@ class Player():
             self.is_moving = False
 
         if self.is_moving:
+            if current_time - self.last_step_time > self.step_delay:
+                            self.walk_sound.stop()  # Останавливаем предыдущий звук
+                            self.walk_sound.play()
+                            self.last_step_time = current_time
+
             if self.player_orientation == 'front':
                 screen.blit(self.player_front_walking[self.anim_count], self.player_rect)
             else:
