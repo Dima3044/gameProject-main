@@ -90,6 +90,7 @@ def main():
             menu.current_menu = "levels"
         elif action == "back":
             menu.current_menu = "main"
+            menu.selected = 0
         elif action in ["level1", "level2", "level3"]:
             game_state["level"] = int(action[-1])
             game_state["objects"] = load_level(game_state["level"])

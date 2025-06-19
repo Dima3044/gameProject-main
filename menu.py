@@ -1,6 +1,5 @@
 import pygame
-import sys
-
+import os
 
 class Menu:
     def __init__(self, screen):
@@ -8,49 +7,64 @@ class Menu:
         self.width, self.height = screen.get_size()
         self.font = pygame.font.Font(None, 36)
         self.selected = 0
-        self.current_menu = "main"  # "main", "levels", "pause", "victory", "defeat"
-        
+        self.current_menu = "main"
+
+        self.sounds = {
+            'move': pygame.mixer.Sound('sounds/menu/move.wav'),
+            'select': pygame.mixer.Sound('sounds/menu/select.wav')
+        }
+
     def handle_input(self, events):
         for event in events:
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_DOWN:
-                    if self.current_menu == "pause":
-                        self.selected = (self.selected + 1) % 3
-                    elif self.current_menu == "levels":
-                        self.selected = (self.selected + 1) % 4
-                    elif self.current_menu == "defeat":
-                        self.selected = (self.selected + 1) % 2
-                    else:
-                        self.selected = (self.selected + 1) % 2
-                        
-                elif event.key == pygame.K_UP:
-                    if self.current_menu == "pause":
-                        self.selected = (self.selected - 1) % 3
-                    elif self.current_menu == "levels":
-                        self.selected = (self.selected - 1) % 4
-                    elif self.current_menu == "defeat":
-                        self.selected = (self.selected - 1) % 2
-                    else:
-                        self.selected = (self.selected - 1) % 2
-                        
+                # Обработка перемещения
+                if event.key in (pygame.K_DOWN, pygame.K_UP):
+                    if self.sounds['move']:
+                        self.sounds['move'].play()
+                    return self._handle_navigation(event.key)
+                
+                # Обработка выбора
                 elif event.key in (pygame.K_RETURN, pygame.K_KP_ENTER):
-                    if self.current_menu == "main":
-                        return ["levels", "quit"][self.selected]
-                    elif self.current_menu == "levels":
-                        return ["level1", "level2", "level3", "back"][self.selected]
-                    elif self.current_menu == "pause":
-                        return ["continue", "menu", "quit"][self.selected]
-                    elif self.current_menu == "victory":
-                        return "menu"
-                    elif self.current_menu == "defeat":
-                        return ["retry", "menu"][self.selected]
-                        
+                    if self.sounds['select']:
+                        self.sounds['select'].play()
+                    return self._handle_selection()
+                
+                # Обработка отмены
                 elif event.key == pygame.K_ESCAPE:
-                    if self.current_menu == "levels":
+                    if self.current_menu != "main":
+                        if self.sounds['select']:
+                            self.sounds['select'].play()
                         return "back"
-                    elif self.current_menu == "pause":
-                        return "continue"
         return None
+    
+    def _handle_navigation(self, key):
+        """Логика перемещения стрелками"""
+        if self.current_menu == "pause":
+            max_items = 3
+        elif self.current_menu == "levels":
+            max_items = 4
+        elif self.current_menu == "defeat":
+            max_items = 2
+        else:
+            max_items = 2
+            
+        if key == pygame.K_DOWN:
+            self.selected = (self.selected + 1) % max_items
+        else:
+            self.selected = (self.selected - 1) % max_items
+
+    def _handle_selection(self):
+        """Логика выбора пункта"""
+        if self.current_menu == "main":
+            return ["levels", "quit"][self.selected]
+        elif self.current_menu == "levels":
+            return ["level1", "level2", "level3", "back"][self.selected]
+        elif self.current_menu == "pause":
+            return ["continue", "menu", "quit"][self.selected]
+        elif self.current_menu == "defeat":
+            return ["retry", "menu"][self.selected]
+        elif self.current_menu == "victory":
+            return "menu"
 
     def draw(self):
         self.screen.fill((30, 30, 40))  # Темно-серый фон
