@@ -1,6 +1,7 @@
 import pygame
 from random import choice
 #import copy  # Для глубокого копирования
+import levels
 
 pygame.init()
 
@@ -8,10 +9,10 @@ pygame.init()
 class Maze():
     def __init__(self, enemy_system):
         self.enemy_system = enemy_system  # Принимаем систему врагов
-        self.keys = [[img.copy(), pos] for img, pos in keys]
+        self.keys = []
         self.obstacles = [[img.copy(), pos] for img, pos in obstacles]
         self.backgrounds = [[img.copy(), pos] for img, pos in backgrounds]
-        self.doors = [[img.copy(), pos] for img, pos in doors]
+        self.doors = []
         self.inventory = []
         self.MAP = [self.backgrounds, self.obstacles, self.keys, self.doors, self.enemy_system.enemies]
 
@@ -22,16 +23,31 @@ class Maze():
         }
 
     def load_level(self, level_num):
-        if level_num == 1:
-
-            self.doors = [[door_ver, (768, 528)]]
-            self.keys = [[key, (480, 1008)], [key, (96, 96)]]
-        elif level_num == 2:
-            # Конфигурация для уровня 2
-            pass
-        elif level_num == 3:
-            # Конфигурация для уровня 3
-            pass
+            config = levels.LEVEL_CONFIGS.get(level_num, {})
+            
+            # Очищаем предыдущие объекты
+            self.enemy_system.clear()
+            self.keys = []
+            self.doors = []
+            
+            # Загружаем врагов
+            for enemy_data in config.get('enemies', []):
+                img = pygame.image.load(enemy_data['img']).convert_alpha()
+                self.enemy_system.addEnemy(img, enemy_data['pos'])
+            
+            # Загружаем ключи
+            for key_data in config.get('keys', []):
+                img = pygame.image.load(key_data['img']).convert_alpha()
+                self.keys.append([img, key_data['pos']])
+            
+            # Загружаем двери
+            for door_data in config.get('doors', []):
+                img = pygame.image.load(door_data['img']).convert_alpha()
+                self.doors.append([img, door_data['pos']])
+            
+            # Обновляем карту
+            self.MAP = [self.backgrounds, self.obstacles, self.keys, 
+                    self.doors, self.enemy_system.enemies]
         
     def moveEnemies(self, speed_x=8, speed_y=6):
         for enemy_id, enemy in enumerate(self.enemy_system.enemies):
@@ -135,15 +151,17 @@ class Maze():
                     self.inventory.append([key, (key_x, 0)])
 
             doors_rect_list = [door.get_rect(topleft=coord) for door, coord in self.doors]
-            for door_rect in doors_rect_list:
+            for index, door_rect in enumerate(doors_rect_list):
                 if door_rect.colliderect(rect):
                     if not self.inventory:
-                        self.sounds['closed_door'].play()
+                        if hasattr(self, 'sounds') and 'closed_door' in self.sounds:
+                            self.sounds['closed_door'].play()
                         return True
                     else:
-                        self.doors.pop(0)
+                        self.doors.pop(index)  # Удаляем конкретную дверь, с которой столкнулись
                         self.inventory.pop()
-                        self.sounds['opened_door'].play()
+                        if hasattr(self, 'sounds') and 'opened_door' in self.sounds:
+                            self.sounds['opened_door'].play()
                         return True
 
         obstacles_rect_list = [obstacle.get_rect(topleft=coord) for obstacle, coord in self.obstacles]
@@ -269,11 +287,7 @@ obstacles = [
 ]
 obstacles_rect_list = []
 keys_rect_list = []
-door_ver = pygame.image.load('images/door_ver.png')
-door_hor = pygame.image.load('images/door_hor.png')
-doors = [
-    [door_ver, (768, 528)]
-]
+doors = []
 backgrounds = [
     [background, (0, 0)],
     [background, (-864, 0)],
@@ -288,7 +302,3 @@ backgrounds = [
 
 
 key = pygame.image.load('images/key.png')
-keys = [
-        [key, (480, 1008)],
-        [key, (96, 96)]
-    ]

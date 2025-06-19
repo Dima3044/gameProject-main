@@ -11,20 +11,9 @@ pygame.display.set_caption("Лабиринт")
 
 
 def load_level(level_num):
-    # Создаем новую систему врагов
     enemy_system = Enemy()
-
-    # Создаем лабиринт
     maze = Maze(enemy_system)
-
-    # Настраиваем уровень
-    if level_num == 1:
-        zombie_img = pygame.image.load('images/zombie.png').convert_alpha()
-        enemy_system.addEnemy(zombie_img, (352, 1008))
-    elif level_num == 2:
-        pass
-    elif level_num == 3:
-        pass
+    maze.load_level(level_num)
     return maze, Player(), enemy_system
 
 
@@ -123,7 +112,7 @@ def main():
                 menu.current_menu = "pause"
         else:
             ambient.stop()
-            
+
         # Отрисовка
         screen.fill((0, 0, 0))
         if game_state["current"] == "game":
